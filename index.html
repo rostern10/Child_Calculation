@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>7岁以下儿童营养评估</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css?v=20260615-17" />
+  </head>
+  <body>
+    <div class="page-layout page-layout-compact">
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <strong>儿童营养评估</strong>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="./index.html" class="nav-link is-current">主页面</a>
+          <a href="./appendix-index.html" class="nav-link">附录页面</a>
+        </nav>
+      </aside>
+
+      <main class="content-area content-area-compact">
+        <div class="page-shell page-shell-compact">
+          <section class="main-card">
+            <header class="card-banner">
+              <h1>7岁以下儿童营养评估</h1>
+            </header>
+
+            <div class="card-body">
+              <div class="section-title">
+                <h2>基础信息录入</h2>
+                <p>日期改为下拉选择，年份范围固定为 `2000-2030`，并自动生成 `YYYY/MM/DD` 格式。</p>
+              </div>
+
+              <form id="assessment-form" class="assessment-form" novalidate>
+                <div class="field full-span">
+                  <span>性别</span>
+                  <div class="segmented-row">
+                    <label class="segment-option">
+                      <input type="radio" name="sex" value="male" checked="checked" />
+                      <span>男孩</span>
+                    </label>
+                    <label class="segment-option">
+                      <input type="radio" name="sex" value="female" />
+                      <span>女孩</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <span>出生日期</span>
+                  <div class="date-select-row">
+                    <select id="birth-year" class="date-select" aria-label="出生年份"></select>
+                    <select id="birth-month" class="date-select" aria-label="出生月份"></select>
+                    <select id="birth-day" class="date-select" aria-label="出生日期"></select>
+                  </div>
+                  <input id="birth-date" name="birthDate" type="hidden" />
+                </div>
+
+                <div class="field">
+                  <span>测量日期</span>
+                  <div class="date-select-row">
+                    <select id="evaluation-year" class="date-select" aria-label="测量年份"></select>
+                    <select id="evaluation-month" class="date-select" aria-label="测量月份"></select>
+                    <select id="evaluation-day" class="date-select" aria-label="测量日期"></select>
+                  </div>
+                  <input id="evaluation-date" name="evaluationDate" type="hidden" />
+                </div>
+
+                <div class="field">
+                  <span>体重（kg）</span>
+                  <input id="weight-kg" name="weightKg" type="number" step="0.1" min="0" placeholder="例如 12.30" />
+                </div>
+
+                <div class="field">
+                  <span>身长 / 身高（cm）</span>
+                  <input id="measure-cm" name="measureCm" type="number" step="0.1" min="0" placeholder="例如 87.1" />
+                </div>
+
+                <div class="preview-strip full-span">
+                  <div class="preview-item">
+                    <span>月龄</span>
+                    <strong id="preview-month-age">-</strong>
+                  </div>
+                  <div class="preview-item">
+                    <span>实际年龄</span>
+                    <strong id="preview-actual-age">-</strong>
+                  </div>
+                </div>
+
+                <div class="button-row full-span">
+                  <button type="submit" class="primary-btn">开始评估</button>
+                  <button id="reset-button" type="button" class="secondary-btn">一键清空</button>
+                </div>
+              </form>
+
+              <div id="error-box" class="message-box error-box hidden"></div>
+            </div>
+
+            <section id="results-section" class="results-panel hidden">
+              <div class="result-title section-title">
+                <h2>评估结果</h2>
+                <p>结果直接在当前卡片内展开显示，不再额外撑满页面。</p>
+              </div>
+
+              <div id="basic-result" class="basic-result"></div>
+
+              <div class="result-table-card">
+                <h3>表2 儿童生长水平评价</h3>
+                <table class="simple-result-table">
+                  <thead>
+                    <tr>
+                      <th>项目</th>
+                      <th>年龄别体重</th>
+                      <th>年龄别身长/身高</th>
+                      <th>身长/身高别体重</th>
+                      <th>年龄别BMI</th>
+                    </tr>
+                  </thead>
+                  <tbody id="table2-body"></tbody>
+                </table>
+              </div>
+
+              <div class="result-table-card">
+                <h3>表3 儿童营养状况评价</h3>
+                <table class="simple-result-table">
+                  <thead>
+                    <tr>
+                      <th>项目</th>
+                      <th>年龄别体重</th>
+                      <th>年龄别身长/身高</th>
+                      <th>身长/身高别体重</th>
+                      <th>年龄别BMI</th>
+                    </tr>
+                  </thead>
+                  <tbody id="table3-body"></tbody>
+                </table>
+              </div>
+            </section>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <script type="module" src="./app.mjs?v=20260615-16"></script>
+  </body>
+</html>

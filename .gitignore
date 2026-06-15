@@ -1,0 +1,29 @@
+# System
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.idea/
+.vscode/
+
+# Runtime / dependencies
+node_modules/
+
+# Build or temporary outputs
+dist/
+build/
+coverage/
+
+# Local preview artifacts
+artifacts/
+tests/page-preview.png
+tests/page-preview-simple.png
+
+# Archives
+*.zip
+*.rar
+
+# Python cache
+__pycache__/
+*.pyc

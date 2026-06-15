@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>附录查看</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <style>
+      body {
+        margin: 0;
+        background: #ffffff;
+        color: #111111;
+        font-family: "SimSun", "NSimSun", "Songti SC", "STSong", serif;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .viewer-shell {
+        width: calc(100% - 140px);
+        max-width: 980px;
+        margin: 32px auto;
+        background: #ffffff;
+        border: 1px solid #d9d9d9;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      }
+
+      .viewer-head {
+        padding: 18px 24px;
+        background: #d7000f;
+        color: #ffffff;
+      }
+
+      .viewer-head h1 {
+        margin: 0 0 8px;
+        font-size: 30px;
+        line-height: 1.35;
+      }
+
+      .viewer-head p {
+        margin: 0;
+        font-size: 16px;
+        line-height: 1.7;
+      }
+
+      .viewer-body {
+        padding: 22px 24px 26px;
+      }
+
+      .viewer-actions {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+      }
+
+      .viewer-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        padding: 0 16px;
+        border: 1px solid #d9d9d9;
+        border-radius: 6px;
+        background: #f7f9fc;
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .viewer-link:hover {
+        border-color: #2f73e0;
+        background: #edf4ff;
+        color: #2f73e0;
+      }
+
+      .viewer-meta {
+        margin-bottom: 14px;
+        color: #555555;
+        font-size: 16px;
+        line-height: 1.7;
+      }
+
+      .viewer-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+
+      .viewer-tag {
+        display: inline-flex;
+        align-items: center;
+        min-height: 36px;
+        padding: 0 14px;
+        border-radius: 999px;
+        background: #f4f6fa;
+        color: #1e293b;
+        font-size: 16px;
+        font-weight: 700;
+      }
+
+      .viewer-content {
+        padding: 18px 18px 20px;
+        border: 1px solid #ececec;
+        border-radius: 6px;
+        background: #ffffff;
+        font-size: 18px;
+        line-height: 1.85;
+      }
+
+      .viewer-content h1,
+      .viewer-content h2,
+      .viewer-content h3,
+      .viewer-content h4,
+      .viewer-content h5,
+      .viewer-content h6 {
+        margin: 0 0 14px;
+        color: #111111;
+        line-height: 1.4;
+      }
+
+      .viewer-content h1 {
+        font-size: 30px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #d7000f;
+      }
+
+      .viewer-content h2 {
+        margin-top: 28px;
+        font-size: 26px;
+        padding: 10px 14px;
+        border-left: 5px solid #d7000f;
+        background: #faf7f7;
+      }
+
+      .viewer-content h3 {
+        margin-top: 24px;
+        font-size: 22px;
+        font-weight: 700;
+      }
+
+      .viewer-content .block-title {
+        margin: 22px 0 12px;
+        font-size: 22px;
+        font-weight: 700;
+      }
+
+      .viewer-content .sub-note {
+        margin: 0 0 14px;
+        padding: 10px 14px;
+        border-left: 3px solid #cfcfcf;
+        background: #fafafa;
+        color: #444444;
+      }
+
+      .viewer-content .unit-line {
+        margin: -4px 0 16px;
+        font-size: 16px;
+        color: #666666;
+      }
+
+      .viewer-content p {
+        margin: 0 0 14px;
+      }
+
+      .viewer-content ul,
+      .viewer-content ol {
+        margin: 0 0 16px 28px;
+        padding: 0;
+      }
+
+      .viewer-content li {
+        margin-bottom: 8px;
+      }
+
+      .viewer-content code {
+        padding: 1px 6px;
+        border-radius: 4px;
+        background: #f3f4f6;
+        font-size: 0.95em;
+      }
+
+      .viewer-content .table-wrap {
+        display: flex;
+        justify-content: center;
+        margin: 16px 0 24px;
+        overflow-x: auto;
+      }
+
+      .viewer-content table {
+        min-width: 680px;
+        width: auto;
+        border-collapse: collapse;
+        background: #ffffff;
+        margin: 0 auto;
+      }
+
+      .viewer-content th,
+      .viewer-content td {
+        padding: 8px 10px;
+        border: 1px solid #d9d9d9;
+        text-align: center;
+        vertical-align: middle;
+        white-space: nowrap;
+        font-size: 17px;
+      }
+
+      .viewer-content th {
+        background: #f7f7f7;
+        font-weight: 700;
+      }
+
+      .viewer-content .viewer-empty,
+      .viewer-content .viewer-error {
+        color: #555555;
+      }
+
+      .viewer-content .viewer-error {
+        color: #ab2431;
+      }
+
+      .viewer-content .summary-section + .summary-section {
+        margin-top: 28px;
+      }
+
+      .viewer-content .row-group {
+        background: #faf7f7;
+        font-weight: 700;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      @media (max-width: 1100px) {
+        .viewer-shell {
+          width: calc(100% - 32px);
+          max-width: none;
+          margin: 16px auto;
+        }
+
+        .viewer-body {
+          padding: 18px;
+        }
+
+        .viewer-content {
+          padding: 18px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="viewer-shell">
+      <header class="viewer-head">
+        <h1 id="viewer-title">附录查看</h1>
+        <p id="viewer-head-copy">当前页面用于查看附录分类总表与整理文件，并自动渲染其中的表格。</p>
+      </header>
+      <div class="viewer-body">
+        <div class="viewer-actions">
+          <a class="viewer-link" href="./appendix-index.html">返回附录导航</a>
+          <a class="viewer-link" href="./index.html">返回评估首页</a>
+        </div>
+        <div id="viewer-meta" class="viewer-meta"></div>
+        <div id="viewer-tags" class="viewer-tags"></div>
+        <article id="viewer-content" class="viewer-content">
+          <p class="viewer-empty">正在加载文件内容...</p>
+        </article>
+      </div>
+    </div>
+
+    <script type="module" src="./appendix-viewer.mjs?v=20260615-3"></script>
+  </body>
+</html>
