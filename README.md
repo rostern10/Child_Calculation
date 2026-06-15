@@ -9,7 +9,7 @@
 
 ## 页面预览
 
-![儿童营养评估页面预览](./docs/images/main-page-preview.png)
+![儿童营养评估页面预览](./docs/images/yyk.png)
 
 ## 项目特点
 
