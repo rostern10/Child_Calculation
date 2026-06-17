@@ -6,9 +6,9 @@
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <title>7岁以下儿童营养评估</title>
+    <title>儿童营养评估</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./styles.css?v=20260615-17" />
+    <link rel="stylesheet" href="./styles.css?v=20260616-19" />
   </head>
   <body>
     <div class="page-layout page-layout-compact">
@@ -27,7 +27,7 @@
         <div class="page-shell page-shell-compact">
           <section class="main-card">
             <header class="card-banner">
-              <h1>7岁以下儿童营养评估</h1>
+              <h1>儿童营养评估</h1>
             </header>
 
             <div class="card-body">
@@ -56,7 +56,7 @@
                   <div class="date-select-row">
                     <select id="birth-year" class="date-select" aria-label="出生年份"></select>
                     <select id="birth-month" class="date-select" aria-label="出生月份"></select>
-                    <select id="birth-day" class="date-select" aria-label="出生日期"></select>
+                    <select id="birth-day" class="date-select" aria-label="出生日"></select>
                   </div>
                   <input id="birth-date" name="birthDate" type="hidden" />
                 </div>
@@ -66,7 +66,7 @@
                   <div class="date-select-row">
                     <select id="evaluation-year" class="date-select" aria-label="测量年份"></select>
                     <select id="evaluation-month" class="date-select" aria-label="测量月份"></select>
-                    <select id="evaluation-day" class="date-select" aria-label="测量日期"></select>
+                    <select id="evaluation-day" class="date-select" aria-label="测量日"></select>
                   </div>
                   <input id="evaluation-date" name="evaluationDate" type="hidden" />
                 </div>
@@ -84,11 +84,11 @@
                 <div class="preview-strip full-span">
                   <div class="preview-item">
                     <span>月龄</span>
-                    <strong id="preview-month-age">-</strong>
+                    <strong id="preview-month-age">—</strong>
                   </div>
                   <div class="preview-item">
                     <span>实际年龄</span>
-                    <strong id="preview-actual-age">-</strong>
+                    <strong id="preview-actual-age">—</strong>
                   </div>
                 </div>
 
@@ -104,13 +104,13 @@
             <section id="results-section" class="results-panel hidden">
               <div class="result-title section-title">
                 <h2>评估结果</h2>
-                <p>结果直接在当前卡片内展开显示，不再额外撑满页面。</p>
+                <p id="result-hint">系统会根据年龄自动选择对应的评估标准。</p>
               </div>
 
               <div id="basic-result" class="basic-result"></div>
 
-              <div class="result-table-card">
-                <h3>表2 儿童生长水平评价</h3>
+              <div id="table2-card" class="result-table-card">
+                <h3>表1 儿童生长水平评价</h3>
                 <table class="simple-result-table">
                   <thead>
                     <tr>
@@ -125,8 +125,8 @@
                 </table>
               </div>
 
-              <div class="result-table-card">
-                <h3>表3 儿童营养状况评价</h3>
+              <div id="table3-card" class="result-table-card">
+                <h3>表2 儿童营养状况评价</h3>
                 <table class="simple-result-table">
                   <thead>
                     <tr>
@@ -140,12 +140,25 @@
                   <tbody id="table3-body"></tbody>
                 </table>
               </div>
+
+              <div id="school-age-card" class="result-table-card hidden">
+                <h3>7岁及以上评估结果</h3>
+                <table class="simple-result-table school-age-result-table">
+                  <thead>
+                    <tr>
+                      <th>项目</th>
+                      <th>结果</th>
+                    </tr>
+                  </thead>
+                  <tbody id="school-age-body"></tbody>
+                </table>
+              </div>
             </section>
           </section>
         </div>
       </main>
     </div>
 
-    <script type="module" src="./app.mjs?v=20260615-16"></script>
+    <script type="module" src="./app.mjs?v=20260617-03"></script>
   </body>
 </html>

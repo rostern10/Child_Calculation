@@ -1,4 +1,4 @@
-import { evaluateChild } from "./lib/evaluator.mjs?v=20260615-2";
+import { evaluateChild } from "./lib/evaluator.mjs?v=20260617-03";
 
 const form = document.querySelector("#assessment-form");
 const resultsPanel = document.querySelector("#results-section");
@@ -17,6 +17,11 @@ const resetButton = document.querySelector("#reset-button");
 const basicResult = document.querySelector("#basic-result");
 const table2Body = document.querySelector("#table2-body");
 const table3Body = document.querySelector("#table3-body");
+const table2Card = document.querySelector("#table2-card");
+const table3Card = document.querySelector("#table3-card");
+const schoolAgeCard = document.querySelector("#school-age-card");
+const schoolAgeBody = document.querySelector("#school-age-body");
+const resultHint = document.querySelector("#result-hint");
 const weightInput = document.querySelector("#weight-kg");
 const measureInput = document.querySelector("#measure-cm");
 
@@ -26,7 +31,7 @@ function startsWithText(value, prefix) {
 
 function pad(value) {
   const text = String(value);
-  return text.length >= 2 ? text : `0${text}`;
+  return text.length >= 2 ? text : "0" + text;
 }
 
 function escapeHtml(value) {
@@ -75,7 +80,7 @@ function parseDateValue(value) {
 }
 
 function formatSlashDate(date) {
-  return `${date.getFullYear()}/${pad(date.getMonth() + 1)}/${pad(date.getDate())}`;
+  return date.getFullYear() + "/" + pad(date.getMonth() + 1) + "/" + pad(date.getDate());
 }
 
 function todayDate() {
@@ -98,13 +103,13 @@ function setSelectOptions(select, values, placeholder, suffix, selectedValue) {
   let options = "";
 
   if (placeholder) {
-    options += `<option value="">${placeholder}</option>`;
+    options += '<option value="">' + placeholder + "</option>";
   }
 
   for (let index = 0; index < values.length; index += 1) {
     const value = values[index];
     const selected = String(value) === String(selectedValue) ? ' selected="selected"' : "";
-    options += `<option value="${value}"${selected}>${value}${suffix}</option>`;
+    options += '<option value="' + value + '"' + selected + ">" + value + suffix + "</option>";
   }
 
   select.innerHTML = options;
@@ -127,7 +132,7 @@ function syncDateValue(yearSelect, monthSelect, daySelect, hiddenInput) {
     return;
   }
 
-  hiddenInput.value = `${yearSelect.value}/${pad(monthSelect.value)}/${pad(daySelect.value)}`;
+  hiddenInput.value = yearSelect.value + "/" + pad(monthSelect.value) + "/" + pad(daySelect.value);
   computeAgePreview();
 }
 
@@ -148,13 +153,14 @@ function fillDateGroup(yearSelect, monthSelect, daySelect, hiddenInput, date, ke
 
   if (keepIncomplete) {
     hiddenInput.value = "";
-  } else {
-    yearSelect.value = String(date.getFullYear());
-    monthSelect.value = String(date.getMonth() + 1);
-    setDayOptions(daySelect, yearSelect.value, monthSelect.value, date.getDate());
-    daySelect.value = String(date.getDate());
-    hiddenInput.value = formatSlashDate(date);
+    return;
   }
+
+  yearSelect.value = String(date.getFullYear());
+  monthSelect.value = String(date.getMonth() + 1);
+  setDayOptions(daySelect, yearSelect.value, monthSelect.value, date.getDate());
+  daySelect.value = String(date.getDate());
+  hiddenInput.value = formatSlashDate(date);
 }
 
 function resultPillClass(value, tableName) {
@@ -171,7 +177,7 @@ function resultPillClass(value, tableName) {
   if (value === "正常") {
     return "pill-normal";
   }
-  if (startsWithText(value, "重度") || value === "肥胖") {
+  if (value === "中重度消瘦" || value === "肥胖" || value === "生长迟缓" || startsWithText(value, "重度")) {
     return "pill-danger";
   }
   return "pill-warn";
@@ -187,8 +193,8 @@ function computeAgePreview() {
   const evaluationDate = parseDateValue(evaluationDateInput.value);
 
   if (!birthDate || !evaluationDate) {
-    previewMonthAge.textContent = "-";
-    previewActualAge.textContent = "-";
+    previewMonthAge.textContent = "—";
+    previewActualAge.textContent = "—";
     return;
   }
 
@@ -201,73 +207,100 @@ function computeAgePreview() {
   }
 
   if (months < 0) {
-    previewMonthAge.textContent = "-";
+    previewMonthAge.textContent = "—";
     previewActualAge.textContent = "测量日期早于出生日期";
     return;
   }
 
   const years = Math.floor(months / 12);
   const remainMonths = months % 12;
-  previewMonthAge.textContent = `${months} 月`;
-  previewActualAge.textContent = years > 0 ? `${years} 岁 ${remainMonths} 月` : `${remainMonths} 月`;
+  previewMonthAge.textContent = months + " 月";
+  previewActualAge.textContent = years > 0 ? years + " 岁 " + remainMonths + " 月" : remainMonths + " 月";
 }
 
 function renderBasicResult(result) {
   const evaluationDate = parseDateValue(result.input.evaluationDate);
 
-  basicResult.innerHTML = `
-    <div class="basic-result-item">
-      <span>性别</span>
-      <strong>${escapeHtml(result.input.sexLabel)}</strong>
-    </div>
-    <div class="basic-result-item">
-      <span>实际年龄</span>
-      <strong>${escapeHtml(result.derived.actualAge)}</strong>
-    </div>
-    <div class="basic-result-item">
-      <span>体重</span>
-      <strong>${result.input.weightKg.toFixed(2)} kg</strong>
-    </div>
-    <div class="basic-result-item">
-      <span>身长 / 身高</span>
-      <strong>${result.input.measureCm.toFixed(2)} cm</strong>
-    </div>
-    <div class="basic-result-item">
-      <span>BMI</span>
-      <strong>${result.derived.bmi.toFixed(2)}</strong>
-    </div>
-    <div class="basic-result-item">
-      <span>评估日期</span>
-      <strong>${evaluationDate ? escapeHtml(formatSlashDate(evaluationDate)) : escapeHtml(result.input.evaluationDate)}</strong>
-    </div>
-  `;
+  basicResult.innerHTML =
+    '<div class="basic-result-item">' +
+      "<span>性别</span>" +
+      "<strong>" + escapeHtml(result.input.sexLabel) + "</strong>" +
+    "</div>" +
+    '<div class="basic-result-item">' +
+      "<span>实际年龄</span>" +
+      "<strong>" + escapeHtml(result.derived.actualAge) + "</strong>" +
+    "</div>" +
+    '<div class="basic-result-item">' +
+      "<span>体重</span>" +
+      "<strong>" + result.input.weightKg.toFixed(2) + " kg</strong>" +
+    "</div>" +
+    '<div class="basic-result-item">' +
+      "<span>身长 / 身高</span>" +
+      "<strong>" + result.input.measureCm.toFixed(2) + " cm</strong>" +
+    "</div>" +
+    '<div class="basic-result-item">' +
+      "<span>BMI</span>" +
+      "<strong>" + result.derived.bmi.toFixed(2) + "</strong>" +
+    "</div>" +
+    '<div class="basic-result-item">' +
+      "<span>评估日期</span>" +
+      "<strong>" + (evaluationDate ? escapeHtml(formatSlashDate(evaluationDate)) : escapeHtml(result.input.evaluationDate)) + "</strong>" +
+    "</div>";
 }
 
-function renderTables(result) {
-  table2Body.innerHTML = `
-    <tr>
-      <th>结果</th>
-      <td><span class="result-pill ${resultPillClass(result.table2.ageWeight, "table2")}">${escapeHtml(result.table2.ageWeight)}</span></td>
-      <td><span class="result-pill ${resultPillClass(result.table2.ageHeight, "table2")}">${escapeHtml(result.table2.ageHeight)}</span></td>
-      <td><span class="result-pill ${resultPillClass(result.table2.weightForLengthHeight, "table2")}">${escapeHtml(result.table2.weightForLengthHeight)}</span></td>
-      <td><span class="result-pill ${resultPillClass(result.table2.ageBmi, "table2")}">${escapeHtml(result.table2.ageBmi)}</span></td>
-    </tr>
-  `;
+function renderUnder7Tables(result) {
+  table2Body.innerHTML =
+    "<tr>" +
+      "<th>结果</th>" +
+      '<td><span class="result-pill ' + resultPillClass(result.table2.ageWeight, "table2") + '">' + escapeHtml(result.table2.ageWeight) + "</span></td>" +
+      '<td><span class="result-pill ' + resultPillClass(result.table2.ageHeight, "table2") + '">' + escapeHtml(result.table2.ageHeight) + "</span></td>" +
+      '<td><span class="result-pill ' + resultPillClass(result.table2.weightForLengthHeight, "table2") + '">' + escapeHtml(result.table2.weightForLengthHeight) + "</span></td>" +
+      '<td><span class="result-pill ' + resultPillClass(result.table2.ageBmi, "table2") + '">' + escapeHtml(result.table2.ageBmi) + "</span></td>" +
+    "</tr>";
 
-  table3Body.innerHTML = `
-    <tr>
-      <th>结果</th>
-      <td><span class="result-pill ${resultPillClass(result.table3.ageWeight, "table3")}">${escapeHtml(result.table3.ageWeight)}</span></td>
-      <td><span class="result-pill ${resultPillClass(result.table3.ageHeight, "table3")}">${escapeHtml(result.table3.ageHeight)}</span></td>
-      <td><span class="result-pill ${resultPillClass(result.table3.weightForLengthHeight, "table3")}">${escapeHtml(result.table3.weightForLengthHeight)}</span></td>
-      <td><span class="result-pill ${resultPillClass(result.table3.ageBmi, "table3")}">${escapeHtml(result.table3.ageBmi)}</span></td>
-    </tr>
-  `;
+  table3Body.innerHTML =
+    "<tr>" +
+      "<th>结果</th>" +
+      '<td><span class="result-pill ' + resultPillClass(result.table3.ageWeight, "table3") + '">' + escapeHtml(result.table3.ageWeight) + "</span></td>" +
+      '<td><span class="result-pill ' + resultPillClass(result.table3.ageHeight, "table3") + '">' + escapeHtml(result.table3.ageHeight) + "</span></td>" +
+      '<td><span class="result-pill ' + resultPillClass(result.table3.weightForLengthHeight, "table3") + '">' + escapeHtml(result.table3.weightForLengthHeight) + "</span></td>" +
+      '<td><span class="result-pill ' + resultPillClass(result.table3.ageBmi, "table3") + '">' + escapeHtml(result.table3.ageBmi) + "</span></td>" +
+    "</tr>";
+
+  table2Card.classList.remove("hidden");
+  table3Card.classList.remove("hidden");
+  schoolAgeCard.classList.add("hidden");
+  schoolAgeBody.innerHTML = "";
+  resultHint.textContent = "7 岁以下自动输出表 1 与表 2。";
+}
+
+function renderSchoolAgeTable(result) {
+  let rows = "";
+  for (let index = 0; index < result.schoolAgeTable.length; index += 1) {
+    const item = result.schoolAgeTable[index];
+    rows +=
+      "<tr>" +
+        "<th>" + escapeHtml(item.item) + "</th>" +
+        '<td><span class="result-pill ' + resultPillClass(item.value, "table3") + '">' + escapeHtml(item.value) + "</span></td>" +
+      "</tr>";
+  }
+
+  schoolAgeBody.innerHTML = rows;
+  table2Card.classList.add("hidden");
+  table3Card.classList.add("hidden");
+  schoolAgeCard.classList.remove("hidden");
+  table2Body.innerHTML = "";
+  table3Body.innerHTML = "";
+  resultHint.textContent = "7 岁及以上自动输出身高筛查、BMI筛查和身高发育等级 3 项结果。";
 }
 
 function renderResult(result) {
   renderBasicResult(result);
-  renderTables(result);
+  if (result.ageGroup === "schoolAge") {
+    renderSchoolAgeTable(result);
+  } else {
+    renderUnder7Tables(result);
+  }
   resultsPanel.classList.remove("hidden");
 }
 
@@ -296,39 +329,24 @@ function resetFormState() {
   const today = todayDate();
 
   form.reset();
-  fillDateGroup(
-    birthYearSelect,
-    birthMonthSelect,
-    birthDaySelect,
-    birthDateInput,
-    new Date(2026, 0, 1),
-    true,
-  );
-  fillDateGroup(
-    evaluationYearSelect,
-    evaluationMonthSelect,
-    evaluationDaySelect,
-    evaluationDateInput,
-    today,
-    false,
-  );
+  fillDateGroup(birthYearSelect, birthMonthSelect, birthDaySelect, birthDateInput, new Date(2026, 0, 1), true);
+  fillDateGroup(evaluationYearSelect, evaluationMonthSelect, evaluationDaySelect, evaluationDateInput, today, false);
   clearError();
   resultsPanel.classList.add("hidden");
   basicResult.innerHTML = "";
   table2Body.innerHTML = "";
   table3Body.innerHTML = "";
-  previewMonthAge.textContent = "-";
-  previewActualAge.textContent = "-";
-  computeAgePreview();
+  schoolAgeBody.innerHTML = "";
+  table2Card.classList.remove("hidden");
+  table3Card.classList.remove("hidden");
+  schoolAgeCard.classList.add("hidden");
+  resultHint.textContent = "系统会根据年龄自动选择对应的评估标准。";
+  previewMonthAge.textContent = "—";
+  previewActualAge.textContent = "—";
 }
 
 bindDateGroup(birthYearSelect, birthMonthSelect, birthDaySelect, birthDateInput);
-bindDateGroup(
-  evaluationYearSelect,
-  evaluationMonthSelect,
-  evaluationDaySelect,
-  evaluationDateInput,
-);
+bindDateGroup(evaluationYearSelect, evaluationMonthSelect, evaluationDaySelect, evaluationDateInput);
 
 form.addEventListener("submit", function handleSubmit(event) {
   event.preventDefault();
@@ -338,12 +356,20 @@ form.addEventListener("submit", function handleSubmit(event) {
     const result = evaluateChild(gatherInput());
     renderResult(result);
   } catch (error) {
-    showError(error instanceof Error ? error.message : "评估失败，请检查输入。");
+    resultsPanel.classList.add("hidden");
+    showError(error && error.message ? error.message : "评估失败，请检查输入。");
   }
 });
 
 resetButton.addEventListener("click", function handleReset() {
   resetFormState();
 });
+
+birthYearSelect.addEventListener("change", computeAgePreview);
+birthMonthSelect.addEventListener("change", computeAgePreview);
+birthDaySelect.addEventListener("change", computeAgePreview);
+evaluationYearSelect.addEventListener("change", computeAgePreview);
+evaluationMonthSelect.addEventListener("change", computeAgePreview);
+evaluationDaySelect.addEventListener("change", computeAgePreview);
 
 resetFormState();

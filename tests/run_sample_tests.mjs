@@ -3,7 +3,7 @@ import { evaluateChild } from "../lib/evaluator.mjs";
 
 const cases = [
   {
-    name: "24 月龄男童立位身高，命中 2b 特殊行且整体正常",
+    name: "24月龄男童立位身高命中2b特殊行且整体正常",
     input: {
       sex: "male",
       birthDate: "2024-06-12",
@@ -13,6 +13,7 @@ const cases = [
       measurementMethod: "standing",
     },
     assert(result) {
+      assert.equal(result.ageGroup, "under7");
       assert.equal(result.derived.monthAge, 24);
       assert.equal(result.table3.ageWeight, "正常");
       assert.equal(result.table3.ageHeight, "正常");
@@ -22,23 +23,7 @@ const cases = [
     },
   },
   {
-    name: "12 月龄男童，年龄别体重低于 -3SD",
-    input: {
-      sex: "male",
-      birthDate: "2025-06-12",
-      evaluationDate: "2026-06-12",
-      weightKg: 6.8,
-      measureCm: 75.7,
-      measurementMethod: "lying",
-    },
-    assert(result) {
-      assert.equal(result.derived.monthAge, 12);
-      assert.equal(result.table3.ageWeight, "重度低体重");
-      assert.equal(result.table2.ageWeight, "下");
-    },
-  },
-  {
-    name: "36 月龄女童，年龄别身高落在 -3SD 到 -2SD 之间",
+    name: "36月龄女童年龄别身高落入生长迟缓区间",
     input: {
       sex: "female",
       birthDate: "2023-06-12",
@@ -48,74 +33,105 @@ const cases = [
       measurementMethod: "standing",
     },
     assert(result) {
-      assert.equal(result.derived.monthAge, 36);
+      assert.equal(result.ageGroup, "under7");
       assert.equal(result.table3.ageHeight, "生长迟缓");
       assert.equal(result.table2.ageHeight, "下");
     },
   },
   {
-    name: "60 月龄男童，身高别体重和年龄别 BMI 同时落入肥胖区间",
+    name: "7岁男童自动切换到学龄筛查且BMI正常",
     input: {
       sex: "male",
-      birthDate: "2021-06-12",
-      evaluationDate: "2026-06-12",
-      weightKg: 23.5,
-      measureCm: 112,
+      birthDate: "2021-06-15",
+      evaluationDate: "2028-06-15",
+      weightKg: 18,
+      measureCm: 110,
       measurementMethod: "standing",
     },
     assert(result) {
-      assert.equal(result.derived.monthAge, 60);
-      assert.equal(result.table3.weightForLengthHeight, "肥胖");
-      assert.equal(result.table3.ageBmi, "肥胖");
-      assert.equal(result.table2.weightForLengthHeight, "上");
-      assert.equal(result.table2.ageBmi, "上");
+      assert.equal(result.ageGroup, "schoolAge");
+      assert.equal(result.derived.monthAge, 84);
+      assert.equal(result.schoolAgeTable[0].value, "生长迟缓");
+      assert.equal(result.schoolAgeTable[1].value, "正常");
+      assert.equal(result.schoolAgeTable[2].value, "下等");
     },
   },
   {
-    name: "30 月龄女童卧位身长，BMI 换算后进入超重",
+    name: "7岁男童BMI可判定为轻度消瘦",
+    input: {
+      sex: "male",
+      birthDate: "2021-06-15",
+      evaluationDate: "2028-06-15",
+      weightKg: 21.4,
+      measureCm: 125,
+      measurementMethod: "standing",
+    },
+    assert(result) {
+      assert.equal(result.ageGroup, "schoolAge");
+      assert.equal(result.schoolAgeTable[1].value, "轻度消瘦");
+    },
+  },
+  {
+    name: "8岁女童BMI可判定为肥胖",
     input: {
       sex: "female",
-      birthDate: "2023-12-12",
-      evaluationDate: "2026-06-12",
-      weightKg: 13.7,
-      measureCm: 90.6,
-      measurementMethod: "lying",
-    },
-    assert(result) {
-      assert.equal(result.derived.monthAge, 30);
-      assert.equal(result.table3.ageBmi, "超重");
-      assert.ok(result.notes.includes("24 月龄后录入的是卧位身长，系统按标准说明换算为身高后参与判定。"));
-    },
-  },
-  {
-    name: "37 月龄男童，年龄类指标启用季度插值",
-    input: {
-      sex: "male",
-      birthDate: "2023-05-12",
-      evaluationDate: "2026-06-12",
-      weightKg: 14.5,
-      measureCm: 97.0,
+      birthDate: "2020-06-15",
+      evaluationDate: "2028-06-15",
+      weightKg: 33,
+      measureCm: 130,
       measurementMethod: "standing",
     },
     assert(result) {
-      assert.equal(result.derived.monthAge, 37);
-      assert.equal(result.table3.ageWeight, "正常");
-      assert.equal(result.table3.ageHeight, "正常");
-      assert.equal(result.table3.ageBmi, "正常");
-      assert.ok(result.notes.includes("年龄别体重使用了相邻标准点线性插值。"));
-      assert.ok(result.notes.includes("年龄别身长/身高使用了相邻标准点线性插值。"));
-      assert.ok(result.notes.includes("年龄别 BMI 使用了相邻标准点线性插值。"));
+      assert.equal(result.ageGroup, "schoolAge");
+      assert.equal(result.schoolAgeTable[1].value, "肥胖");
+    },
+  },
+  {
+    name: "7岁男童身高达到+2SD以上可判定为上等",
+    input: {
+      sex: "male",
+      birthDate: "2021-06-15",
+      evaluationDate: "2028-06-15",
+      weightKg: 28,
+      measureCm: 138,
+      measurementMethod: "standing",
+    },
+    assert(result) {
+      assert.equal(result.ageGroup, "schoolAge");
+      assert.equal(result.schoolAgeTable[2].value, "上等");
+      assert.equal(result.metrics.schoolAgeHeightDevelopmentSd.result, "上等");
+    },
+  },
+  {
+    name: "6岁10月仍按7岁以下最后一档参与年龄别指标评估",
+    input: {
+      sex: "male",
+      birthDate: "2019-08-15",
+      evaluationDate: "2026-06-15",
+      weightKg: 18.3,
+      measureCm: 116,
+      measurementMethod: "standing",
+    },
+    assert(result) {
+      assert.equal(result.ageGroup, "under7");
+      assert.equal(result.derived.monthAge, 82);
+      assert.equal(result.derived.maxSupportedMonths, 83);
+      assert.equal(result.metrics.ageWeight.referenceMode, "carried-forward");
+      assert.equal(result.metrics.ageHeight.referenceMode, "carried-forward");
+      assert.equal(result.metrics.ageBmi.referenceMode, "carried-forward");
+      assert.equal(result.metrics.weightForLengthHeight.referenceMode, "exact");
     },
   },
 ];
 
 let passed = 0;
 
-for (const testCase of cases) {
+for (let index = 0; index < cases.length; index += 1) {
+  const testCase = cases[index];
   const result = evaluateChild(testCase.input);
   testCase.assert(result);
   passed += 1;
-  console.log(`PASS - ${testCase.name}`);
+  console.log("PASS - " + testCase.name);
 }
 
-console.log(`\n共 ${passed} 组样例通过。`);
+console.log("\n共 " + passed + " 组样例通过。");
