@@ -7,10 +7,14 @@ const headCopyEl = document.querySelector("#viewer-head-copy");
 const metaEl = document.querySelector("#viewer-meta");
 const tagsEl = document.querySelector("#viewer-tags");
 const contentEl = document.querySelector("#viewer-content");
+const homeLinkEl = document.querySelector("#viewer-home-link");
+const viewerShellEl = document.querySelector("#viewer-shell");
 
 const searchParams = new URLSearchParams(window.location.search);
 const metricKey = searchParams.get("metric");
 const file = searchParams.get("file");
+const homeFile = searchParams.get("home");
+const homeLabel = searchParams.get("homeLabel");
 
 const SD_COLUMNS = [
   { key: "-3", label: "-3SD" },
@@ -131,15 +135,29 @@ function escapeHtml(text) {
   });
 }
 
+function normalizeDisplayText(text) {
+  return String(text)
+    .replace(/\$\s*/g, "")
+    .replace(/\s*\$/g, "")
+    .replace(/\\mathrm\{([^}]+)\}/g, "$1")
+    .replace(/\^\{([^}]+)\}/g, "^$1")
+    .replace(/_\{([^}]+)\}/g, "_$1")
+    .replace(/\\sim/g, "~")
+    .replace(/[{}]/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
 function renderInline(text) {
-  return escapeHtml(text).replace(/`([^`]+)`/g, "<code>$1</code>");
+  return escapeHtml(normalizeDisplayText(text)).replace(/`([^`]+)`/g, "<code>$1</code>");
 }
 
 function renderRawHtml(raw) {
+  const normalizedRaw = normalizeDisplayText(raw);
   if (/^\s*<table[\s>]/i.test(raw)) {
-    return '<div class="table-wrap">' + raw + "</div>";
+    return '<div class="table-wrap">' + normalizedRaw + "</div>";
   }
-  return raw;
+  return normalizedRaw;
 }
 
 function buildTag(label) {
@@ -158,6 +176,22 @@ function setTags(labels) {
 
 function setContentHtml(html) {
   contentEl.innerHTML = html;
+}
+
+function isDietaryReferenceFile(fileName) {
+  return /(^|\b)(appendix-3-|3-\d+\.md$)/iu.test(fileName);
+}
+
+function setViewerHomeLink() {
+  const targetHome = homeFile || "appendix-index.html";
+  const targetLabel = homeLabel || "返回儿童营养评估附录";
+
+  homeLinkEl.href = "./" + targetHome;
+  homeLinkEl.textContent = targetLabel;
+}
+
+function updateViewerMode(fileName) {
+  viewerShellEl.classList.toggle("is-dietary-appendix", isDietaryReferenceFile(fileName));
 }
 
 function formatAgeLabel(row) {
@@ -495,6 +529,55 @@ function renderSpecialLine(trimmed) {
   return null;
 }
 
+function isMarkdownTableSeparator(line) {
+  return /^\|?(?:\s*:?-{3,}:?\s*\|)+\s*:?-{3,}:?\s*\|?$/u.test(line.trim());
+}
+
+function isMarkdownTableLine(line) {
+  const trimmed = line.trim();
+  return trimmed.startsWith("|") && trimmed.includes("|", 1);
+}
+
+function parseMarkdownTableRow(line) {
+  return line
+    .trim()
+    .replace(/^\|/u, "")
+    .replace(/\|$/u, "")
+    .split("|")
+    .map(function mapCell(cell) {
+      return cell.trim();
+    });
+}
+
+function buildMarkdownTableHtml(tableLines) {
+  if (tableLines.length < 2) {
+    return null;
+  }
+
+  const headerCells = parseMarkdownTableRow(tableLines[0]);
+  const bodyLines = tableLines.slice(2);
+  let html = '<div class="table-wrap"><table><thead><tr>';
+
+  for (let index = 0; index < headerCells.length; index += 1) {
+    html += "<th>" + renderInline(headerCells[index]) + "</th>";
+  }
+
+  html += "</tr></thead><tbody>";
+
+  for (let rowIndex = 0; rowIndex < bodyLines.length; rowIndex += 1) {
+    const cells = parseMarkdownTableRow(bodyLines[rowIndex]);
+    html += "<tr>";
+    for (let cellIndex = 0; cellIndex < headerCells.length; cellIndex += 1) {
+      const value = cells[cellIndex] || "";
+      html += "<td>" + renderInline(value) + "</td>";
+    }
+    html += "</tr>";
+  }
+
+  html += "</tbody></table></div>";
+  return html;
+}
+
 function renderMarkdown(source) {
   const lines = source.replace(/\r\n/g, "\n").split("\n");
   const html = [];
@@ -545,6 +628,27 @@ function renderMarkdown(source) {
       continue;
     }
 
+    if (
+      isMarkdownTableLine(trimmed) &&
+      index + 1 < lines.length &&
+      isMarkdownTableSeparator(lines[index + 1])
+    ) {
+      flushParagraph();
+      closeList();
+
+      const tableLines = [trimmed, lines[index + 1].trim()];
+      index += 2;
+
+      while (index < lines.length && isMarkdownTableLine(lines[index])) {
+        tableLines.push(lines[index].trim());
+        index += 1;
+      }
+
+      index -= 1;
+      html.push(buildMarkdownTableHtml(tableLines));
+      continue;
+    }
+
     if (/^\s*<[^>]+>/.test(trimmed)) {
       flushParagraph();
       closeList();
@@ -589,14 +693,40 @@ function renderMarkdown(source) {
   return html.join("");
 }
 
+function normalizeMarkdownTitle(rawTitle) {
+  return rawTitle
+    .replace(/^#{1,6}\s*/u, "")
+    .replace(/^\s*[-*]\s*/u, "")
+    .trim();
+}
+
+function extractMarkdownTitle(source, fallbackTitle) {
+  const lines = source.replace(/\r\n/g, "\n").split("\n");
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const trimmed = lines[index].trim();
+    if (!trimmed) {
+      continue;
+    }
+
+    const title = normalizeMarkdownTitle(trimmed);
+    if (title) {
+      return title;
+    }
+  }
+
+  return fallbackTitle;
+}
+
 function renderFileViewer(fileName) {
   const decodedFile = decodeURIComponent(fileName);
-  const displayTitle = decodedFile.replace(/\.md$/iu, "");
+  const fallbackTitle = decodedFile.replace(/\.md$/iu, "");
 
-  titleEl.textContent = displayTitle;
+  titleEl.textContent = fallbackTitle;
   headCopyEl.textContent = "当前页面用于查看本地整理文档，并自动渲染其中的表格。";
-  metaEl.textContent = "当前文件：" + displayTitle;
+  metaEl.textContent = "当前文件：" + fallbackTitle;
   setTags(resolveFileTags(decodedFile));
+  updateViewerMode(decodedFile);
 
   fetch("./appendix/" + fileName)
     .then(function checkResponse(response) {
@@ -606,12 +736,17 @@ function renderFileViewer(fileName) {
       return response.text();
     })
     .then(function setText(text) {
+      const displayTitle = extractMarkdownTitle(text, fallbackTitle);
+      titleEl.textContent = displayTitle;
+      metaEl.textContent = "当前文件：" + displayTitle;
       setContentHtml(renderMarkdown(text));
     })
     .catch(function handleError(error) {
       setContentHtml('<p class="viewer-error">文件加载失败：' + escapeHtml(error.message) + "</p>");
     });
 }
+
+setViewerHomeLink();
 
 if (metricKey) {
   renderMetricSummary(metricKey);

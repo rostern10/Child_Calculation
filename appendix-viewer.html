@@ -32,6 +32,53 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
       }
 
+      .viewer-shell.is-dietary-appendix {
+        width: calc(100% - 64px);
+        max-width: 1480px;
+      }
+
+      .viewer-shell.is-dietary-appendix,
+      .viewer-shell.is-dietary-appendix * {
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: auto;
+      }
+
+      .viewer-shell.is-dietary-appendix .viewer-head h1 {
+        font-size: 32px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      .viewer-shell.is-dietary-appendix .viewer-head p {
+        font-size: 19px;
+        font-weight: 500;
+        color: #ffffff;
+      }
+
+      .viewer-shell.is-dietary-appendix .viewer-link {
+        font-size: 21px;
+        font-weight: 700;
+        color: #111111;
+      }
+
+      .viewer-shell.is-dietary-appendix .viewer-meta {
+        font-size: 20px;
+        font-weight: 600;
+        color: #111111;
+      }
+
+      .viewer-shell.is-dietary-appendix .viewer-tag {
+        font-size: 19px;
+        font-weight: 700;
+        color: #111111;
+      }
+
+      .viewer-shell.is-dietary-appendix .viewer-content {
+        font-size: 21px;
+        line-height: 1.8;
+        color: #111111;
+      }
+
       .viewer-head {
         padding: 18px 24px;
         background: #d7000f;
@@ -205,6 +252,16 @@
         margin: 0 auto;
       }
 
+      .viewer-shell.is-dietary-appendix .viewer-content .table-wrap {
+        overflow-x: auto;
+      }
+
+      .viewer-shell.is-dietary-appendix .viewer-content table {
+        min-width: 0;
+        width: 100%;
+        table-layout: fixed;
+      }
+
       .viewer-content th,
       .viewer-content td {
         padding: 10px 12px;
@@ -214,6 +271,57 @@
         white-space: nowrap;
         font-size: 20px;
         color: #111111;
+      }
+
+      .viewer-shell.is-dietary-appendix .viewer-content th,
+      .viewer-shell.is-dietary-appendix .viewer-content td {
+        padding: 8px 6px;
+        white-space: normal;
+        word-break: break-word;
+        font-size: 17px;
+        line-height: 1.5;
+        color: #000000;
+      }
+
+      .viewer-shell.is-dietary-appendix .viewer-content th {
+        font-size: 18px;
+        font-weight: 700;
+        border-color: #c4c4c4;
+        background: #f7f7f7;
+      }
+
+      .viewer-shell.is-dietary-appendix .viewer-content td {
+        font-weight: 600;
+        border-color: #d0d0d0;
+      }
+
+      .viewer-shell.is-dietary-appendix .viewer-content p,
+      .viewer-shell.is-dietary-appendix .viewer-content li,
+      .viewer-shell.is-dietary-appendix .viewer-content .sub-note,
+      .viewer-shell.is-dietary-appendix .viewer-content .unit-line {
+        color: #111111;
+        font-weight: 500;
+      }
+
+      .viewer-shell.is-dietary-appendix .viewer-content code {
+        color: #111111;
+        font-weight: 600;
+      }
+
+      .viewer-shell.is-dietary-appendix .viewer-content h1 {
+        font-size: 34px;
+        font-weight: 700;
+      }
+
+      .viewer-shell.is-dietary-appendix .viewer-content h2 {
+        font-size: 30px;
+        font-weight: 700;
+      }
+
+      .viewer-shell.is-dietary-appendix .viewer-content h3,
+      .viewer-shell.is-dietary-appendix .viewer-content .block-title {
+        font-size: 25px;
+        font-weight: 700;
       }
 
       .viewer-content th {
@@ -261,14 +369,14 @@
     </style>
   </head>
   <body>
-    <div class="viewer-shell">
+    <div id="viewer-shell" class="viewer-shell">
       <header class="viewer-head">
         <h1 id="viewer-title">附录查看</h1>
         <p id="viewer-head-copy">当前页面用于查看附录分类总表与整理文件，并自动渲染其中的表格。</p>
       </header>
       <div class="viewer-body">
         <div class="viewer-actions">
-          <a class="viewer-link" href="./appendix-index.html">返回附录导航</a>
+          <a id="viewer-home-link" class="viewer-link" href="./appendix-index.html">返回儿童营养评估附录</a>
           <a class="viewer-link" href="./index.html">返回评估首页</a>
         </div>
         <div id="viewer-meta" class="viewer-meta"></div>
@@ -279,6 +387,6 @@
       </div>
     </div>
 
-    <script type="module" src="./appendix-viewer.mjs?v=20260617-02"></script>
+    <script type="module" src="./appendix-viewer.mjs?v=20260622-02"></script>
   </body>
 </html>
