@@ -253,13 +253,14 @@
       }
 
       .viewer-shell.is-dietary-appendix .viewer-content .table-wrap {
+        justify-content: flex-start;
         overflow-x: auto;
       }
 
       .viewer-shell.is-dietary-appendix .viewer-content table {
-        min-width: 0;
-        width: 100%;
-        table-layout: fixed;
+        min-width: max-content;
+        width: auto;
+        table-layout: auto;
       }
 
       .viewer-content th,
@@ -276,8 +277,9 @@
       .viewer-shell.is-dietary-appendix .viewer-content th,
       .viewer-shell.is-dietary-appendix .viewer-content td {
         padding: 8px 6px;
-        white-space: normal;
-        word-break: break-word;
+        white-space: nowrap;
+        word-break: keep-all;
+        overflow-wrap: normal;
         font-size: 17px;
         line-height: 1.5;
         color: #000000;
@@ -387,6 +389,6 @@
       </div>
     </div>
 
-    <script type="module" src="./appendix-viewer.mjs?v=20260622-02"></script>
+    <script type="module" src="./appendix-viewer.mjs?v=20260624-01"></script>
   </body>
 </html>

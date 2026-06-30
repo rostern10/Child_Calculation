@@ -547,6 +547,36 @@ input[type="number"]:focus {
   overflow-x: auto;
 }
 
+.dietary-table-card {
+  margin-top: 22px;
+}
+
+.dietary-result-table {
+  table-layout: fixed;
+}
+
+.dietary-result-table th,
+.dietary-result-table td {
+  font-size: 20px;
+}
+
+.dietary-result-table tbody th {
+  width: 42%;
+  text-align: left;
+}
+
+.dietary-result-note {
+  margin-top: 12px;
+}
+
+.dietary-mode-block {
+  width: 100%;
+}
+
+.dietary-inner-grid {
+  gap: 20px 42px;
+}
+
 .school-age-result-table th:first-child,
 .school-age-result-table td:first-child {
   width: 55%;

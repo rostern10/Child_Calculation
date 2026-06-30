@@ -652,6 +652,23 @@ function renderMarkdown(source) {
     if (/^\s*<[^>]+>/.test(trimmed)) {
       flushParagraph();
       closeList();
+
+      if (/^\s*<table[\s>]/i.test(trimmed)) {
+        const htmlLines = [lines[index]];
+        index += 1;
+
+        while (index < lines.length) {
+          htmlLines.push(lines[index]);
+          if (/<\/table>\s*$/i.test(lines[index].trim())) {
+            break;
+          }
+          index += 1;
+        }
+
+        html.push(renderRawHtml(htmlLines.join("\n")));
+        continue;
+      }
+
       html.push(renderRawHtml(trimmed));
       continue;
     }
